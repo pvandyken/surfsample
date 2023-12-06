@@ -1,0 +1,5 @@
+include surfsample/**/*.yaml
+include surfsample/**/*.yml
+include surfsample/**/*.json
+include surfsample/**/Snakefile
+include surfsample/**/*.smk
