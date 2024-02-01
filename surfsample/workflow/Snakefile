@@ -60,4 +60,8 @@ rule merge_giftis:
 
 rule all:
     input:
-        inputs["pial"].expand(rules.merge_giftis.output)
+        (
+            inputs["pial"]
+            .filter(subject=inputs["data"]["subject"])
+            .expand(rules.merge_giftis.output)
+        )
