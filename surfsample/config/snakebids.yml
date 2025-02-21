@@ -22,7 +22,6 @@ pybids_inputs:
       - subject
       - session
       - hemi
-      - den
   wm:
     filters:
       suffix: wm
@@ -31,7 +30,6 @@ pybids_inputs:
       - subject
       - session
       - hemi
-      - den
   midthickness:
     filters:
       suffix: midthickness
@@ -40,8 +38,13 @@ pybids_inputs:
       - subject
       - session
       - hemi
-      - den
   data:
+    filters:
+      extension: .nii.gz
+    wildcards:
+      - subject
+      - session
+  fw:
     filters:
       extension: .nii.gz
     wildcards:

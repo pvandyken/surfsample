@@ -14,12 +14,25 @@ inputs = generate_inputs(
     validate=not config.get("plugins.validator.skip", False)
 )
 
-non_hemi_wcards = inputs["pial"].wildcards.copy()
-del non_hemi_wcards["hemi"]
+rule mask_data:
+    input:
+        data=inputs["data"].path,
+        fw=inputs["fw"].path,
+    output:
+        temp(bids(
+            config["output_dir"],
+            suffix=config["param"],
+            extension=".nii.gz",
+            **inputs["data"].wildcards,
+        ))
+    shell:
+        """
+        c3d {input.fw} -thresh 0 0.1 1 0 {input.data} -times {output}
+        """
 
 rule sample_on_surface:
     input:
-        data=inputs["data"].path,
+        data=rules.mask_data.output,
         pial=inputs["pial"].path,
         wm=inputs["wm"].path,
         midthickness=inputs["midthickness"].path,
@@ -28,14 +41,16 @@ rule sample_on_surface:
             config["output_dir"],
             suffix=config["param"],
             extension=".shape.gii",
-            **inputs["pial"].wildcards,
+            hemi="{hemi}",
+            **inputs["data"].wildcards,
         ))
     container: config["containers"]["workbench"]
     shell:
         """
         wb_command -volume-to-surface-mapping \\
             {input.data} {input.midthickness} {output} \\
-            -ribbon-constrained {input.wm} {input.pial}
+            -ribbon-constrained {input.wm} {input.pial} \\
+            -gaussian 0.1
         """
 
 rule merge_giftis:
@@ -47,7 +62,7 @@ rule merge_giftis:
             config["output_dir"],
             suffix=config["param"],
             extension=".dscalar.nii",
-            **non_hemi_wcards,
+            **inputs["data"].wildcards,
         )
     container: config["containers"]["workbench"]
     shell:
@@ -61,7 +76,7 @@ rule merge_giftis:
 rule all:
     input:
         (
-            inputs["pial"]
+            inputs["data"]
             .filter(subject=inputs["data"]["subject"])
             .expand(rules.merge_giftis.output)
         )
