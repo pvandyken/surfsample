@@ -113,4 +113,5 @@ parse_args:
 
 #singularity containers
 containers:
-  workbench: docker://brainlife/connectome_workbench:1.5.0-freesurfer-update
+  workbench: docker://khanlab/connectome-workbench:latest
+  itk: docker://pyushkevich/itksnap:v3.8.2

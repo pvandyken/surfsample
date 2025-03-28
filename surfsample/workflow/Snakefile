@@ -25,6 +25,7 @@ rule mask_data:
             extension=".nii.gz",
             **inputs["data"].wildcards,
         ))
+    container: config["containers"]["itk"]
     shell:
         """
         c3d {input.fw} -thresh 0 0.1 1 0 {input.data} -times {output}
